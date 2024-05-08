@@ -3,7 +3,7 @@
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/cassandra.jpg?raw=true)
 
 Pull the docker image of cassandra :
-```
+```bash
 docker pull cassandra
 ```
 
@@ -16,7 +16,7 @@ Some Notices and roles about deployment :
 - Explicitly setting the CASSANDRA_CLUSTER_NAME and CASSANDRA_DC environment variables, which correspondingly sets the cluster_name on the cassandra.yaml config and the dc option on the cassandra-rackdc.properties file. This allows you explicitly tell the nodes to join the same datacenter and cluster. These options are only relevant for GossipingPropertyFileSnitch.
 
 docker compose file with network cassandra-net :
-```
+```yaml
 version: "3.3"
 
 networks:
@@ -117,7 +117,7 @@ volumes:
 ```
 
 The main thing here are the healthcheck blocks :
-```
+```yaml
 healthcheck:
       test: ["CMD-SHELL", "nodetool status"]
       interval: 2m
@@ -127,7 +127,7 @@ healthcheck:
 ```
 
 and the updated depends_on on each node :
-```
+```yaml
 depends_on:
       cassandra-2:
         condition: service_healthy
@@ -142,7 +142,7 @@ In that Compose file:
 - Repeat the check every 2m and for 3 times.
 
 There's also some extra env vars in there :
-```
+```yaml
 environment:
       - CASSANDRA_START_RPC=true       # default
       - CASSANDRA_RPC_ADDRESS=0.0.0.0  # default
@@ -152,7 +152,7 @@ environment:
 which may not be needed, since those are already the defaults on the cassandra Docker image (see section on [Configuring Cassandra](https://hub.docker.com/_/cassandra) from the Dockerhub page. Basically, those explicitly set the IP address of the containers to be both the listen and broadcast address. I'm just noting it here in case the defaults change.
 
 if you are running all the nodes in the same machine, you need to specify different ports for each of them :
-```
+```yaml
 cassandra-1:
     ...
     ports:
@@ -172,7 +172,7 @@ cassandra-1:
 otherwise, the containers may not start correctly.
 
 Start your deployment :
-```
+```bash
 docker compose up
 ```
 
@@ -185,7 +185,7 @@ Check all containers log for being healthy and joining process :
 The [gossip protocol](https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/architecture/archGossipAbout.html) should detect if a particular node goes down and mark it as such, but still keep it in the list.
 
 Use nodetool for check the status in all 3 nodes :
-```
+```bash
 docker exec cassandra-3 nodetool status
 ```
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/nodetool.png?raw=true)
@@ -197,7 +197,7 @@ The Cassandra Query Language (CQL) is very similar to SQL but suited for the JOI
 Start to working with the cluster with cqlsh ...
 
 We want to create a keyspace, the layer at which Cassandra replicates its data, a table to hold the data, and insert some data into that table :
-```
+```bash
 docker exec -it cassandra-1 bash
 
 # cqlsh
