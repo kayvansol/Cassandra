@@ -94,6 +94,3 @@ volumes:
   cassandra-node-1:
   cassandra-node-2:
   cassandra-node-3:
-
-
-  # https://stackoverflow.com/questions/77119397/when-using-docker-compose-to-create-three-cassandra-nodes-on-the-same-network-h
