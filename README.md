@@ -7,11 +7,11 @@ docker pull cassandra
 
 Some Notices and roles about deployment :
 
-Controlling the startup order of the nodes in the Compose file, such that Compose first makes sure that the seed node cassandra-1 is up and healthy, then starts cassandra-2 and also makes sure that cassandra-2 node is up and healthy, then starts cassandra-3, and so on. Basically, preventing nodes from all starting simultaneously, especially the nodes after the seed node. When nodes are started simultaneously with Compose, it can lead to errors such as a conflict with token ranges, causing some of the nodes to fail to join the cluster.
+- Controlling the startup order of the nodes in the Compose file, such that Compose first makes sure that the seed node cassandra-1 is up and healthy, then starts cassandra-2 and also makes sure that cassandra-2 node is up and healthy, then starts cassandra-3, and so on. Basically, preventing nodes from all starting simultaneously, especially the nodes after the seed node. When nodes are started simultaneously with Compose, it can lead to errors such as a conflict with token ranges, causing some of the nodes to fail to join the cluster.
 
-Using a Snitch configuration that more resembles your production environment, which is usually when a multi-node or multi-cluster or multi-datacenter becomes necessary. For example, you can use a GossipingPropertyFileSnitch, which is also the same Snitch type used in the Cassandra tutorial for Initializing a multiple node cluster (multiple datacenters).
+- Using a Snitch configuration that more resembles your production environment, which is usually when a multi-node or multi-cluster or multi-datacenter becomes necessary. For example, you can use a GossipingPropertyFileSnitch, which is also the same Snitch type used in the Cassandra tutorial for Initializing a multiple node cluster (multiple datacenters).
 
-Explicitly setting the CASSANDRA_CLUSTER_NAME and CASSANDRA_DC environment variables, which correspondingly sets the cluster_name on the cassandra.yaml config and the dc option on the cassandra-rackdc.properties file. This allows you explicitly tell the nodes to join the same datacenter and cluster. These options are only relevant for GossipingPropertyFileSnitch.
+- Explicitly setting the CASSANDRA_CLUSTER_NAME and CASSANDRA_DC environment variables, which correspondingly sets the cluster_name on the cassandra.yaml config and the dc option on the cassandra-rackdc.properties file. This allows you explicitly tell the nodes to join the same datacenter and cluster. These options are only relevant for GossipingPropertyFileSnitch.
 
 docker compose file with network cassandra-net :
 ```
@@ -180,8 +180,50 @@ Check all containers log for being healthy and joining process :
 
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/joiningLog.png?raw=true)
 
-Use nodetool for check the status :
+The [gossip protocol](https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/architecture/archGossipAbout.html) should detect if a particular node goes down and mark it as such, but still keep it in the list.
+
+Use nodetool for check the status in all 3 nodes :
 ```
-docker exec cassandra-1 nodetool status
+docker exec cassandra-3 nodetool status
 ```
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/nodetool.png?raw=true)
+
+The main problem with this config is that starting the nodes takes a long time. In that sample Compose file where healthcheck.interval is 2m, it takes about ~5mins for all 3 nodes to properly start-up.
+
+The Cassandra Query Language (CQL) is very similar to SQL but suited for the JOINless structure of Cassandra.
+
+Start to working with the cluster with cqlsh ...
+
+We want to create a keyspace, the layer at which Cassandra replicates its data, a table to hold the data, and insert some data into that table :
+```
+docker exec -it cassandra-1 bash
+
+# cqlsh
+...
+cqlsh> CREATE KEYSPACE IF NOT EXISTS store WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '1' };
+
+cqlsh> CREATE TABLE IF NOT EXISTS store.shopping_cart (
+        userid text PRIMARY KEY,
+        item_count int,
+        last_update_timestamp timestamp
+);
+
+cqlsh> INSERT INTO store.shopping_cart
+      (userid, item_count, last_update_timestamp)
+      VALUES ('9876', 2, toTimeStamp(now()));
+
+cqlsh> INSERT INTO store.shopping_cart
+      (userid, item_count, last_update_timestamp)
+      VALUES ('1234', 5, toTimeStamp(now()));
+
+cqlsh> SELECT * FROM store.shopping_cart;
+
+```
+the result in all 3 nodes :
+
+![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/cqlsh1.png?raw=true)
+
+![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/cqlsh2.png?raw=true)
+
+![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/cqlsh3.png?raw=true)
+
