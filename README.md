@@ -199,7 +199,9 @@ Start to working with the cluster with cqlsh ...
 We want to create a keyspace, the layer at which Cassandra replicates its data, a table to hold the data, and insert some data into that table :
 ```bash
 docker exec -it cassandra-1 bash
+```
 
+```sql
 # cqlsh
 ...
 cqlsh> CREATE KEYSPACE IF NOT EXISTS store WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '1' };
