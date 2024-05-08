@@ -1,4 +1,6 @@
-# Deploying A Apache Cassandra Cluster (3 nodes) with docker compose
+# Deploying Apache Cassandra Cluster (3 nodes) with docker compose
+
+![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/cassandra.jpg?raw=true)
 
 Pull the docker image of cassandra :
 ```
