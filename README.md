@@ -15,7 +15,8 @@ Some Notices and roles about deployment :
 
 - Explicitly setting the CASSANDRA_CLUSTER_NAME and CASSANDRA_DC environment variables, which correspondingly sets the cluster_name on the cassandra.yaml config and the dc option on the cassandra-rackdc.properties file. This allows you explicitly tell the nodes to join the same datacenter and cluster. These options are only relevant for GossipingPropertyFileSnitch.
 
-docker compose file with network cassandra-net :
+
+docker compose file with network named cassandra-net :
 ```yaml
 version: "3.3"
 
@@ -116,7 +117,7 @@ volumes:
 
 ```
 
-The main thing here are the healthcheck blocks :
+Note : The main thing here are the healthcheck blocks :
 ```yaml
 healthcheck:
       test: ["CMD-SHELL", "nodetool status"]
@@ -134,6 +135,7 @@ depends_on:
 ```
 
 The modified Compose sets cassandra-3 to only start when cassandra-2 is healthy, and to only start cassandra-2 when cassandra-1 is healthy.
+
 
 In that Compose file:
 
