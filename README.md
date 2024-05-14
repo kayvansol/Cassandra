@@ -178,6 +178,8 @@ Start your deployment :
 docker compose up
 ```
 
+Docker Desktop :
+
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/containers.png?raw=true)
 
 Check all containers log for being healthy and joining process :
@@ -193,6 +195,7 @@ docker exec cassandra-3 nodetool status
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/nodetool.png?raw=true)
 
 The main problem with this config is that starting the nodes takes a long time. In that sample Compose file where healthcheck.interval is 2m, it takes about ~5mins for all 3 nodes to properly start-up.
+
 
 The Cassandra Query Language (CQL) is very similar to SQL but suited for the JOINless structure of Cassandra.
 
