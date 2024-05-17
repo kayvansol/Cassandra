@@ -155,6 +155,7 @@ which may not be needed, since those are already the defaults on the cassandra D
 
 if you are running all the nodes in the same machine, you need to specify different ports for each of them :
 ```yaml
+
 cassandra-1:
     ...
     ports:
@@ -170,12 +171,13 @@ cassandra-1:
     ...
     ports:
       - 9044:9042
+
 ```
 otherwise, the containers may not start correctly.
 
 Start your deployment :
 ```bash
-docker compose up
+docker compose up -d
 ```
 
 Docker Desktop :
@@ -195,7 +197,6 @@ docker exec cassandra-3 nodetool status
 ![alt text](https://raw.githubusercontent.com/kayvansol/Cassandra/main/img/nodetool.png?raw=true)
 
 The main problem with this config is that starting the nodes takes a long time. In that sample Compose file where healthcheck.interval is 2m, it takes about ~5mins for all 3 nodes to properly start-up.
-
 
 The Cassandra Query Language (CQL) is very similar to SQL but suited for the JOINless structure of Cassandra.
 
